@@ -7,9 +7,13 @@ pid = 0xc534	# Change it for your device
 #HID\VID_045E&PID_028E&IG_00 # Witte controller
 vid= 0x045E
 pid= 0x028E
-#HID\VID_046D&PID_C216 #logitech dinges
+#HID\VID_046D&PID_C216 #logitech dinges in directx
 vid = 0x046D
 pid = 0xC216
+#USB\VID_046D&PID_C21D #logitech in xbox mode.
+vid = 0x046D
+pid = 0xC21D
+
 
 
 with hid.Device(vid, pid) as h:
@@ -17,15 +21,24 @@ with hid.Device(vid, pid) as h:
     print(f'Product: {h.product}')
     print(f'Serial Number: {h.serial}')
 
-for d in hid.enumerate():
-    print(d['vendor_id'],d['product_id'],d['product_string'])
+#for d in hid.enumerate():
+#    print(d['vendor_id'],d['product_id'],d['product_string'])
 
-gamepad = hid.Device(vid=0x046d,pid=0xc216) #make an instance of a class
+gamepad = hid.Device(vid=0x046d,pid=0xc21d) #make an instance of a class
 print('hiero')
 gamepad.set_nonblocking=True
 while True:
     report = gamepad.read(64)
     if report:
-        ireport = int.from_bytes(report[0], "big")
-        print(ireport)
-        
+        #ireport = int.from_bytes(report[0], "big")
+        dit=(report[0],#x-as Ljoy
+             report[1],#y-as Ljoy
+             report[2],#x-as Rjoy
+             report[3],#x-as Rjoy
+             report[4],#x-as Rjoy
+             report[5],#x-as Rjoy
+             report[6],#x-as Rjoy
+             report[7],#x-as Rjoy
+             )
+        print(dit)
+    
