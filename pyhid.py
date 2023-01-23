@@ -26,4 +26,6 @@ gamepad.set_nonblocking=True
 while True:
     report = gamepad.read(64)
     if report:
-        print(report)
+        ireport = int.from_bytes(report[0], "big")
+        print(ireport)
+        
