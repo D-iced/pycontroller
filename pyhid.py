@@ -20,6 +20,10 @@ with hid.Device(vid, pid) as h:
 for d in hid.enumerate():
     print(d['vendor_id'],d['product_id'],d['product_string'])
 
-gamepad = hid.Device() #make an instance of a class
-gamepad.open(vid=0x046d,pid=0xc216)
+gamepad = hid.Device(vid=0x046d,pid=0xc216) #make an instance of a class
+print('hiero')
 gamepad.set_nonblocking=True
+while True:
+    report = gamepad.read(64)
+    if report:
+        print(report)
