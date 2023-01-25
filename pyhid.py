@@ -1,44 +1,55 @@
-#import serial
-#import serial.tools.list_ports_windows as lpw
-#import serial.tools.list_ports as lp
 import hid
-vid = 0x046d	# Change it for your device
-pid = 0xc534	# Change it for your device
-#HID\VID_045E&PID_028E&IG_00 # Witte controller
-vid= 0x045E
-pid= 0x028E
-#HID\VID_046D&PID_C216 #logitech dinges in directx
-vid = 0x046D
-pid = 0xC216
-#USB\VID_046D&PID_C21D #logitech in xbox mode.
-vid = 0x046D
-pid = 0xC21D
+import json
+
+lt=0
+ltp=0
 
 
+def controller(vendor,product):
+    with open('controllers.ori.json') as f:
+        data = json.load(f)
+    vid=data['vendors'][vendor]['vid']
+    pid=data['vendors'][vendor]['products'][product]['pid']
+    pnm=data['vendors'][vendor]['products'][product]['name']
+    return int(vid,16),int(pid,16),pnm
 
+print("currently connected Devices HID-class:")
+for d in hid.enumerate():
+    if d['product_string']:
+        print(f"ven: {hex(d['vendor_id'])}, pro: {hex(d['product_id'])}, nme: {d['product_string']}")
+    if "310" in d['product_string']:
+        print("gevonden")
+        if d['product_id'] == 49693:
+            print(f'{ltp=}')
+            ltp=1
+
+vid,pid,name=controller(lt,ltp)
+print(f'\nCurrent selection {name}\n vid: {vid} {hex(vid)}, pid: {pid} {hex(pid)}\n')
+print('Connection report:')
 with hid.Device(vid, pid) as h:
     print(f'Device manufacturer: {h.manufacturer}')
     print(f'Product: {h.product}')
     print(f'Serial Number: {h.serial}')
 
-#for d in hid.enumerate():
-#    print(d['vendor_id'],d['product_id'],d['product_string'])
-
-gamepad = hid.Device(vid=0x046d,pid=0xc21d) #make an instance of a class
-print('hiero')
+gamepad = hid.Device(vid,pid) #make an instance of a class
 gamepad.set_nonblocking=True
 while True:
-    report = gamepad.read(64)
-    if report:
+    report = gamepad.read(80)
+    if ltp==0:
         #ireport = int.from_bytes(report[0], "big")
-        dit=(report[0],#x-as Ljoy
+        axes =[[report[0],#x-as Ljoy
              report[1],#y-as Ljoy
+             ],[
              report[2],#x-as Rjoy
-             report[3],#x-as Rjoy
-             report[4],#x-as Rjoy
-             report[5],#x-as Rjoy
-             report[6],#x-as Rjoy
-             report[7],#x-as Rjoy
-             )
-        print(dit)
+             report[3],#y-as Rjoy
+             ]]
+        dbut = report[4]#direction buttons
+        sbut = report[5]#trigger, mode, stick buttons
+        
+        mode = report[6]#mode button
+        unx  = report[7]#unknown (looks always high)
+             
+        print(axes,dbut,sbut,mode,unx)
+    else:
+        print(report)
     
