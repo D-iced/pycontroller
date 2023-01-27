@@ -6,7 +6,7 @@ ltp=0
 
 
 def controller(vendor,product):
-    with open('controllers.ori.json') as f:
+    with open('controllers.json') as f:
         data = json.load(f)
     vid=data['vendors'][vendor]['vid']
     pid=data['vendors'][vendor]['products'][product]['pid']
@@ -35,7 +35,7 @@ gamepad = hid.Device(vid,pid) #make an instance of a class
 gamepad.set_nonblocking=True
 while True:
     report = gamepad.read(80)
-    if ltp==0:
+    if ltp==0: #dual mode
         #ireport = int.from_bytes(report[0], "big")
         axes =[[report[0],#x-as Ljoy
              report[1],#y-as Ljoy
@@ -50,6 +50,6 @@ while True:
         unx  = report[7]#unknown (looks always high)
              
         print(axes,dbut,sbut,mode,unx)
-    else:
+    else: #xbox mode
         print(report)
     
